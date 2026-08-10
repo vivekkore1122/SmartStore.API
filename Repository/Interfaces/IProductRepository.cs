@@ -4,13 +4,13 @@ namespace SmartStore.API.Repository.Interfaces;
 
 public interface IProductRepository
 {
-    IEnumerable<Product> GetAll();
+    Task<IEnumerable<Product>> GetAllAsync();
 
-    Product? GetById(int id);
+    Task<Product?> GetByIdAsync(int id);
 
-    Product Add(Product product);
+    Task<Product> CreateAsync(Product product);
 
-    Product? Update(Product product);
+    Task<Product?> UpdateAsync(Product product);
 
-    bool Delete(int id);
+    Task<Product?> DeleteAsync(int id);
 }

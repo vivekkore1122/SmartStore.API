@@ -1,5 +1,8 @@
 using SmartStore.API.Repository.Interfaces;
 using SmartStore.API.Repository.Implementation;
+using Microsoft.EntityFrameworkCore;
+using SmartStore.API.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,9 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddDbContext<SmartStoreDbContext>(options =>
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SmartStoreConnectionString"));
+});
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 

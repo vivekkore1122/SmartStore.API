@@ -1,57 +1,46 @@
 ﻿using SmartStore.API.Models.Domain;
 using SmartStore.API.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using SmartStore.API.Data;
+
 
 namespace SmartStore.API.Repository.Implementation;
 
 public class ProductRepository : IProductRepository
 {
-    private static readonly List<Product> products = new()
-    {
-        new Product
-        {
-            Id = 1,
-            Name = "Laptop",
-            ProductCode = "PRD001",
-            Category = "Electronics",
-            Supplier = "Dell",
-            Price = 65000,
-            Quantity = 12
-        },
+    private readonly SmartStoreDbContext dbContext;
 
-        new Product
-        {
-            Id = 2,
-            Name = "Mouse",
-            ProductCode = "PRD002",
-            Category = "Electronics",
-            Supplier = "Logitech",
-            Price = 900,
-            Quantity = 40
-        }
-    };
-
-    public IEnumerable<Product> GetAll()
+    public ProductRepository(SmartStoreDbContext dbContext)
     {
-        return products.OrderBy(p => p.Name);
+        this.dbContext = dbContext;
     }
 
-    public Product? GetById(int id)
+    public async Task<IEnumerable<Product>> GetAllAsync()
     {
-        return products.FirstOrDefault(p => p.Id == id);
+        return await dbContext.Products
+                              .OrderBy(p => p.Name)
+                              .ToListAsync();
     }
 
-    public Product Add(Product product)
+    public async Task<Product?> GetByIdAsync(int id)
     {
-        product.Id = products.Max(p => p.Id) + 1;
+        return await dbContext.Products
+                              .FirstOrDefaultAsync(p => p.Id == id);
+    }
 
-        products.Add(product);
+    public async Task<Product> CreateAsync(Product product)
+    {
+        await dbContext.Products.AddAsync(product);
+
+        await dbContext.SaveChangesAsync();
 
         return product;
     }
 
-    public Product? Update(Product product)
+    public async Task<Product?> UpdateAsync(Product product)
     {
-        var existingProduct = products.FirstOrDefault(p => p.Id == product.Id);
+        var existingProduct = await dbContext.Products
+                                             .FirstOrDefaultAsync(p => p.Id == product.Id);
 
         if (existingProduct == null)
         {
@@ -65,20 +54,24 @@ public class ProductRepository : IProductRepository
         existingProduct.Price = product.Price;
         existingProduct.Quantity = product.Quantity;
 
+        await dbContext.SaveChangesAsync();
+
         return existingProduct;
     }
-
-    public bool Delete(int id)
+    public async Task<Product?> DeleteAsync(int id)
     {
-        var product = products.FirstOrDefault(p => p.Id == id);
+        var product = await dbContext.Products
+                                     .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
         {
-            return false;
+            return null;
         }
 
-        products.Remove(product);
+        dbContext.Products.Remove(product);
 
-        return true;
+        await dbContext.SaveChangesAsync();
+
+        return product;
     }
 }
