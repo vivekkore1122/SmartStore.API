@@ -1,15 +1,10 @@
-﻿namespace SmartStore.API.Models.Domain
+﻿namespace SmartStore.API.Models.Domain;
+
+public class Category
 {
-    public class Category
-    {
-        public int Id { get; set; }
+    public virtual int Id { get; set; }
 
-        public string CategoryName { get; set; }
+    public virtual string CategoryName { get; set; } = string.Empty;
 
-        public string Description { get; set; }
-
-        // Navigation Property
-        public ICollection<Product> Products { get; set; } = new List<Product>();
-
-    }
+    public virtual string? Description { get; set; }
 }

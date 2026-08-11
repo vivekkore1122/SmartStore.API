@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using SmartStore.API.Models.Domain;
 using SmartStore.API.Models.DTO;
 using SmartStore.API.Repository.Interfaces;
@@ -11,10 +12,21 @@ namespace SmartStore.API.Controllers
     public class ProductController : ControllerBase
     {
         private IProductRepository productRepository;
+        private IDapperProductRepository dapperProductRepository;
+        private INHibernateProductRepository nHibernateProductRepository;
+        private ICategoryRepository categoryRepository;
+        private ISupplierRepository supplierRepository;
 
-        public ProductController(IProductRepository productRepository)
+
+        public ProductController(IProductRepository productRepository, IDapperProductRepository dapperProductRepository, INHibernateProductRepository nHibernateProductRepository, ICategoryRepository categoryRepository,
+    ISupplierRepository supplierRepository)
         {
             this.productRepository = productRepository;
+            this.dapperProductRepository = dapperProductRepository;
+            this.nHibernateProductRepository = nHibernateProductRepository;
+            this.categoryRepository = categoryRepository;
+            this.supplierRepository = supplierRepository;
+
 
         }
 
@@ -36,45 +48,81 @@ namespace SmartStore.API.Controllers
                 return NotFound();
             }
 
-            return Ok(product);
+            return Ok(product); 
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateProduct(CreateProductDto createProductDto)
         {
+            var category = await categoryRepository
+                .GetByIdAsync(createProductDto.CategoryId);
+
+            if (category == null)
+            {
+                return BadRequest("Invalid CategoryId.");
+            }
+
+            var supplier = await supplierRepository
+                .GetByIdAsync(createProductDto.SupplierId);
+
+            if (supplier == null)
+            {
+                return BadRequest("Invalid SupplierId.");
+            }
+
             var product = new Product
             {
                 Name = createProductDto.Name,
                 ProductCode = createProductDto.ProductCode,
-                CategoryId = createProductDto.CategoryId,
-                SupplierId = createProductDto.SupplierId,
+                Category = category,
+                Supplier = supplier,
                 Price = createProductDto.Price,
                 Quantity = createProductDto.Quantity
             };
 
-            product = await productRepository.CreateAsync(product); ;
+            product = await productRepository.CreateAsync(product);
 
             return CreatedAtAction(
                 nameof(GetProductById),
                 new { id = product.Id },
-            product);
+                product);
         }
 
+
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateProduct(int id, UpdateProductDto updateProductDto)
+        public async Task<IActionResult> UpdateProduct(
+            int id,
+            UpdateProductDto updateProductDto)
         {
+            var category = await categoryRepository
+                .GetByIdAsync(updateProductDto.CategoryId);
+
+            if (category == null)
+            {
+                return BadRequest("Invalid CategoryId.");
+            }
+
+            var supplier = await supplierRepository
+                .GetByIdAsync(updateProductDto.SupplierId);
+
+            if (supplier == null)
+            {
+                return BadRequest("Invalid SupplierId.");
+            }
+
             var product = new Product
             {
                 Id = id,
                 Name = updateProductDto.Name,
                 ProductCode = updateProductDto.ProductCode,
-                CategoryId = updateProductDto.CategoryId,
-                SupplierId = updateProductDto.SupplierId,
+                Category = category,
+                Supplier = supplier,
                 Price = updateProductDto.Price,
                 Quantity = updateProductDto.Quantity
             };
 
-            var updatedProduct = await productRepository.UpdateAsync(product);
+            var updatedProduct =
+                await productRepository.UpdateAsync(product);
 
             if (updatedProduct == null)
             {
@@ -83,6 +131,7 @@ namespace SmartStore.API.Controllers
 
             return Ok(updatedProduct);
         }
+
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
@@ -96,6 +145,44 @@ namespace SmartStore.API.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("Dapper")]
+
+        public async Task<IActionResult> GetAllProductsUsingDapper()
+        {
+            var products = await dapperProductRepository.GetAllAsync();
+            return Ok(products);
+        }
+
+        [HttpGet("Dapper/{id:int}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            var product = await dapperProductRepository.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(product);
+        }
+
+        [HttpGet("NHibernate")]
+        public async Task<IActionResult> GetProductsUsingNHibernate()
+        {
+            var products = await nHibernateProductRepository.GetAllAsync();
+
+            return Ok(products);
+
+        }
+
+        [HttpGet("NHibernate/{id:int}")]
+        public async Task<IActionResult> GetProductsUsingNHibernateById(int id)
+        {
+            var product = await nHibernateProductRepository.GetByIdAsync(id);
+            return Ok(product);
+        }
     }
+
+    
 }
 

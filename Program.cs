@@ -2,6 +2,7 @@ using SmartStore.API.Repository.Interfaces;
 using SmartStore.API.Repository.Implementation;
 using Microsoft.EntityFrameworkCore;
 using SmartStore.API.Data;
+using SmartStore.API.NHibernate;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IDapperProductRepository, DapperProductRepository>();
+builder.Services.AddScoped<
+    INHibernateProductRepository,
+    NHibernateProductRepository>();
+
+builder.Services.AddSingleton<NHibernateSessionFactory>();
+
 
 var app = builder.Build();
 

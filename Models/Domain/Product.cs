@@ -2,25 +2,17 @@
 
 public class Product
 {
-    public int Id { get; set; }
+    public virtual int Id { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public virtual string Name { get; set; } = string.Empty;
 
-    public string ProductCode { get; set; } = string.Empty;
+    public virtual string ProductCode { get; set; } = string.Empty;
 
-    public decimal Price { get; set; }
+    public virtual decimal Price { get; set; }
 
-    public int Quantity { get; set; }
+    public virtual int Quantity { get; set; }
 
-    // Foreign Key
-    public int CategoryId { get; set; }
+    public virtual Category Category { get; set; } = null!;
 
-    // Navigation Property
-    public Category Category { get; set; } = null!;
-
-    // Foreign Key
-    public int SupplierId { get; set; }
-
-    // Navigation Property
-    public Supplier Supplier { get; set; } = null!;
+    public virtual Supplier Supplier { get; set; } = null!;
 }
