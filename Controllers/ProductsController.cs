@@ -19,7 +19,7 @@ namespace SmartStore.API.Controllers
 
 
         public ProductController(IProductRepository productRepository, IDapperProductRepository dapperProductRepository, INHibernateProductRepository nHibernateProductRepository, ICategoryRepository categoryRepository,
-    ISupplierRepository supplierRepository)
+              ISupplierRepository supplierRepository)
         {
             this.productRepository = productRepository;
             this.dapperProductRepository = dapperProductRepository;
@@ -30,12 +30,34 @@ namespace SmartStore.API.Controllers
 
         }
 
+
+        private static ProductDto MapToProductDto(Product product)
+        {
+            return new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                ProductCode = product.ProductCode,
+
+                CategoryId = product.Category.Id,
+                Category = product.Category.CategoryName,
+
+                SupplierId = product.Supplier.Id,
+                Supplier = product.Supplier.SupplierName,
+
+                Price = product.Price,
+                Quantity = product.Quantity
+            };
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetallProduct()
         {
             var products = await productRepository.GetAllAsync();
-            return Ok(products);
 
+            var productDtos = products.Select(MapToProductDto);
+
+            return Ok(productDtos);
         }
 
         [HttpGet("{id:int}")]
@@ -48,7 +70,9 @@ namespace SmartStore.API.Controllers
                 return NotFound();
             }
 
-            return Ok(product); 
+            var productDto = MapToProductDto(product);
+
+            return Ok(productDto);
         }
 
         [HttpPost]

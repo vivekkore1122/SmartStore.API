@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartStore.API.Data;
 
@@ -11,9 +12,11 @@ using SmartStore.API.Data;
 namespace SmartStore.API.Migrations
 {
     [DbContext(typeof(SmartStoreDbContext))]
-    partial class SmartStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260812094058_AddAuthenticationEntities")]
+    partial class AddAuthenticationEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,28 +128,6 @@ namespace SmartStore.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Seller"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Inventory Manager"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Viewer"
-                        });
                 });
 
             modelBuilder.Entity("SmartStore.API.Models.Domain.Supplier", b =>

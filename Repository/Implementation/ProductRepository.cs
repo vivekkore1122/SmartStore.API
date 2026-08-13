@@ -18,14 +18,18 @@ public class ProductRepository : IProductRepository
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
         return await dbContext.Products
-                              .OrderBy(p => p.Name)
-                              .ToListAsync();
+            .Include(p => p.Category)
+            .Include(p => p.Supplier)
+            .OrderBy(p => p.Name)
+            .ToListAsync();
     }
 
     public async Task<Product?> GetByIdAsync(int id)
     {
         return await dbContext.Products
-                              .FirstOrDefaultAsync(p => p.Id == id);
+            .Include(p => p.Category)
+            .Include(p => p.Supplier)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Product> CreateAsync(Product product)
