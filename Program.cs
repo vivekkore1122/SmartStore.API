@@ -8,6 +8,7 @@ using SmartStore.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using SmartStore.API.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -86,8 +87,23 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SmartStoreCors", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 
 var app = builder.Build();
+
+app.UseCors("SmartStoreCors");
+
+app.UseMiddleware<RequestLoggingMiddleware>();   
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
